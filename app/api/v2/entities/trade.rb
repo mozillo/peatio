@@ -25,7 +25,7 @@ module API
           :amount,
           documentation: {
             type: BigDecimal,
-            desc: 'Trade volume.'
+            desc: 'Trade amount.'
           }
         )
 
@@ -33,7 +33,7 @@ module API
           :total,
           documentation: {
             type: BigDecimal,
-            desc: 'Trade funds.'
+            desc: 'Trade total (Amount * Price).'
           }
         )
 
@@ -59,10 +59,10 @@ module API
           :taker_type,
           documentation: {
             type: String,
-            desc: 'Trade maker order type (sell or buy).'
+            desc: 'Trade taker order type (sell or buy).'
           }
         ) do |trade, _options|
-          trade.taker_order.side == 'sell' ? :sell : :buy
+          trade.taker_order.side
         end
 
         expose(
