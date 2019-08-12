@@ -47,7 +47,7 @@ class Trade < ApplicationRecord
   def for_notify(member = nil)
     { id:             id,
       side:           side(member).side,
-      kind:           side(member),
+      kind:           side(member).side,
       price:          price.to_s  || ZERO,
       amount:         amount.to_s || ZERO,
       market:         market.id,
