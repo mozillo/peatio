@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 class OrderBid < Order
-  has_many :trades, foreign_key: :bid_id
   scope :matching_rule, -> { order(price: :desc, created_at: :asc) }
 
   # @deprecated

@@ -115,6 +115,10 @@ class Order < ApplicationRecord
     end
   end
 
+  def trades
+    Trade.where('maker_order_id = ? OR taker_order_id = ?', id, id)
+  end
+
   def funds_used
     origin_locked - locked
   end
