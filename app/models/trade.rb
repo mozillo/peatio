@@ -163,7 +163,7 @@ class Trade < ApplicationRecord
 end
 
 # == Schema Information
-# Schema version: 20190730140453
+# Schema version: 20190807092706
 #
 # Table name: trades
 #

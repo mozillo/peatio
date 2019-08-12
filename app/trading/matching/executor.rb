@@ -72,8 +72,13 @@ module Matching
           total:         @total,
           market:        @market
 
-        strike(@trade, @maker_order, accounts_table["#{@maker_order.ask}:#{@maker_order.member_id}"], accounts_table["#{@maker_order.bid}:#{@maker_order.member_id}"])
-        strike(@trade, @taker_order, accounts_table["#{@taker_order.bid}:#{@taker_order.member_id}"], accounts_table["#{@taker_order.ask}:#{@taker_order.member_id}"])
+        maker_currency_outcome = @maker_order.side == 'buy' ? @maker_order.bid : @maker_order.ask
+        maker_currency_income = @maker_order.side == 'sell' ? @maker_order.bid : @maker_order.ask
+        taker_currency_outcome = @taker_order.side == 'buy' ? @taker_order.bid : @taker_order.ask
+        taker_currency_income = @taker_order.side == 'sell' ? @taker_order.bid : @taker_order.ask
+
+        strike(@trade, @maker_order, accounts_table["#{maker_currency_outcome}:#{@maker_order.member_id}"], accounts_table["#{maker_currency_income}:#{@maker_order.member_id}"])
+        strike(@trade, @taker_order, accounts_table["#{taker_currency_outcome}:#{@taker_order.member_id}"], accounts_table["#{taker_currency_income}:#{@taker_order.member_id}"])
         @trade.record_complete_operations!
 
         ([@maker_order, @taker_order] + accounts_table.values).map do |record|
