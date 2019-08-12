@@ -73,7 +73,7 @@ module API
             desc: 'Trade side.'
           }
         ) do |trade, options|
-          options[:side] || trade.side(options[:current_user])
+          options[:side] || trade.side(options[:current_user]).side
         end
 
         expose(

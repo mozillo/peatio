@@ -22,7 +22,7 @@ FactoryBot.define do
       maker_order { create(:order_ask, :btceth) }
       taker_order { create(:order_bid, :btceth) }
       maker { maker_order.member }
-      taker { maker_order.member }
+      taker { taker_order.member }
     end
 
     # Create liability history for orders by passing with_deposit_liability trait.
