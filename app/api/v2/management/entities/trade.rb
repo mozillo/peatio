@@ -99,7 +99,7 @@ module API
               desc: 'Trade maker order type (sell or buy).'
             }
           ) do |trade, _options|
-            trade.taker_order.side == 'sell' ? :sell : :buy
+            trade.taker_order.side
           end
 
           expose(
@@ -121,11 +121,7 @@ module API
             },
             if: ->(_, options) { options[:current_user] }
           ) do |trade, options|
-            if trade.maker_id == options[:current_user].id
-              trade.maker_order_id
-            elsif trade.taker_id == options[:current_user].id
-              trade.taker_order_id
-            end
+            trade.order_for_member(options[:current_user]).id
           end
         end
       end

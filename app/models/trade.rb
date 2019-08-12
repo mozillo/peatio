@@ -2,26 +2,36 @@
 # frozen_string_literal: true
 
 class Trade < ApplicationRecord
-  include BelongsToMarket
-  extend Enumerize
+  # == Constants ============================================================
+
   ZERO = '0.0'.to_d
 
-  enumerize :trend, in: { up: 1, down: 0 }
+  # == Relationships ========================================================
+
+  include BelongsToMarket
+  extend Enumerize
 
   belongs_to :maker_order, class_name: 'Order', foreign_key: :maker_order_id, required: true
   belongs_to :taker_order, class_name: 'Order', foreign_key: :taker_order_id, required: true
   belongs_to :maker, class_name: 'Member', foreign_key: :maker_id, required: true
   belongs_to :taker, class_name: 'Member', foreign_key: :taker_id, required: true
 
+  # == Validations ==========================================================
+
   validates :price, :amount, :total, numericality: { greater_than_or_equal_to: 0.to_d }
 
+  # == Scopes ===============================================================
+
   scope :h24, -> { where('created_at > ?', 24.hours.ago) }
+
+  # == Callbacks ============================================================
 
   after_commit on: :create do
     EventAPI.notify ['market', market_id, 'trade_completed'].join('.'), \
       Serializers::EventAPI::TradeCompleted.call(self)
   end
 
+  # == Class Methods ========================================================
 
   class << self
     def latest_price(market)
@@ -30,11 +40,19 @@ class Trade < ApplicationRecord
     end
   end
 
+  # == Instance Methods =====================================================
+
   def order_fee(order)
     maker_order_id == order.id ? order.maker_fee : order.taker_fee
   end
 
   def side(member)
+    return unless member
+
+    order_for_member(member).side
+  end
+
+  def order_for_member(member)
     return unless member
 
     if member.id == maker_id
@@ -46,14 +64,13 @@ class Trade < ApplicationRecord
 
   def for_notify(member = nil)
     { id:             id,
-      side:           side(member).side,
-      kind:           side(member).side,
+      side:           side(member),
       price:          price.to_s  || ZERO,
       amount:         amount.to_s || ZERO,
       market:         market.id,
       at:             created_at.to_i,
       created_at:     created_at.to_i,
-      order_id:       side(member).id }
+      order_id:       order_for_member(member).id }
   end
 
   def for_global
@@ -75,6 +92,7 @@ class Trade < ApplicationRecord
   end
 
   private
+
   def record_liability_debit!
     sell, buy = maker_order.side == 'sell' ? [maker_order, taker_order] : [taker_order, maker_order]
     seller_currency_outcome = amount
