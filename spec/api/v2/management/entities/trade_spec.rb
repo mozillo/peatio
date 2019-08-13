@@ -29,7 +29,7 @@ describe API::V2::Management::Entities::Trade do
 
 
   context 'sell order maker' do
-    it { expect(subject.taker_type).to eq :buy }
+    it { expect(subject.taker_type).to eq 'buy' }
   end
 
   context 'buy order maker' do
@@ -37,7 +37,7 @@ describe API::V2::Management::Entities::Trade do
       create :trade, :btcusd, maker_order: create(:order_bid, :btcusd), taker_order: create(:order_ask, :btcusd)
     end
 
-    it { expect(subject.taker_type).to eq :sell }
+    it { expect(subject.taker_type).to eq 'sell' }
   end
 
   context 'empty side' do
