@@ -7,7 +7,10 @@ class UpdateMarketsAskFeeBidFee < ActiveRecord::Migration[5.2]
     rename_column :trades, :ask_member_id, :maker_id if column_exists?(:trades, :ask_member_id)
     rename_column :trades, :bid_member_id, :taker_id if column_exists?(:trades, :bid_member_id)
     rename_column :trades, :volume, :amount if column_exists?(:trades, :volume)
-    rename_column :trades, :funds, :total if column_exists?(:trades, :funds)
+    if column_exists?(:trades, :funds)
+      change_column :trades, :funds, :decimal, null: false, default: 0, precision: 32, scale: 16, after: :amount
+      rename_column :trades, :funds, :total
+    end 
     remove_column :trades, :trend
     if column_exists?(:orders, :fee)
       change_column :orders, :fee, :decimal, null: false, default: 0, precision: 17, scale: 16
@@ -20,6 +23,10 @@ class UpdateMarketsAskFeeBidFee < ActiveRecord::Migration[5.2]
   def down
     rename_column :markets, :maker_fee, :ask_fee if column_exists?(:markets, :maker_fee)
     rename_column :markets, :taker_fee, :bid_fee if column_exists?(:markets, :taker_fee)
+    if column_exists?(:trades, :total)
+      change_column :trades, :total, :decimal, null: false, default: 0, precision: 32, scale: 16, after: :taker_id
+      rename_column :trades, :total, :funds
+    end
     if column_exists?(:orders, :maker_fee)
       change_column :orders, :maker_fee, :decimal, null: false, default: 0, precision: 32, scale: 16
       rename_column :orders, :maker_fee, :fee

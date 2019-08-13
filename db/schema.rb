@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_07_092706) do
+ActiveRecord::Schema.define(version: 2019_08_13_121822) do
 
   create_table "accounts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "member_id", null: false
@@ -232,12 +232,12 @@ ActiveRecord::Schema.define(version: 2019_08_07_092706) do
   create_table "trades", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.decimal "price", precision: 32, scale: 16, null: false
     t.decimal "amount", precision: 32, scale: 16, null: false
+    t.decimal "total", precision: 32, scale: 16, default: "0.0", null: false
     t.integer "maker_order_id", null: false
     t.integer "taker_order_id", null: false
     t.string "market_id", limit: 20, null: false
     t.integer "maker_id", null: false
     t.integer "taker_id", null: false
-    t.decimal "total", precision: 32, scale: 16, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_trades_on_created_at"

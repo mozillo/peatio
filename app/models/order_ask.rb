@@ -44,7 +44,7 @@ class OrderAsk < Order
 end
 
 # == Schema Information
-# Schema version: 20190807092706
+# Schema version: 20190813121822
 #
 # Table name: orders
 #
