@@ -27,6 +27,7 @@ class OrderAsk < Order
     market.round_price(funds_received / funds_used)
   end
 
+  # @deprecated Please use {income/outcome_currency} in Order model
   def currency
     Currency.find(ask)
   end

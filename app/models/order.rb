@@ -15,6 +15,8 @@ class Order < ApplicationRecord
   TYPES = %w[ market limit ]
   enumerize :ord_type, in: TYPES, scope: true
 
+  belongs_to :ask_currency, class_name: 'Currency', foreign_key: :ask, required: true
+  belongs_to :bid_currency, class_name: 'Currency', foreign_key: :bid, required: true
   after_commit :trigger_pusher_event
 
   validates :ord_type, :volume, :origin_volume, :locked, :origin_locked, presence: true
@@ -122,6 +124,22 @@ class Order < ApplicationRecord
 
   def funds_used
     origin_locked - locked
+  end
+
+  def outcome_currency
+    if side == 'sell'
+      ask_currency
+    elsif side == 'buy'
+      bid_currency
+    end
+  end
+
+  def income_currency
+    if side == 'sell'
+      bid_currency
+    elsif side == 'buy'
+      ask_currency
+    end
   end
 
   def trigger_pusher_event

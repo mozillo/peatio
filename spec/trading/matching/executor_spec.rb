@@ -44,6 +44,7 @@ describe Matching::Executor do
     it 'should create trade' do
       expect do
         trade = subject.execute!
+        binding.pry
 
         expect(trade.price).to eq price
         expect(trade.amount).to eq volume

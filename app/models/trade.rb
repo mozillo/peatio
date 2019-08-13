@@ -4,12 +4,11 @@
 class Trade < ApplicationRecord
   # == Constants ============================================================
 
+  include BelongsToMarket
+  extend Enumerize
   ZERO = '0.0'.to_d
 
   # == Relationships ========================================================
-
-  include BelongsToMarket
-  extend Enumerize
 
   belongs_to :maker_order, class_name: 'Order', foreign_key: :maker_order_id, required: true
   belongs_to :taker_order, class_name: 'Order', foreign_key: :taker_order_id, required: true
@@ -62,6 +61,22 @@ class Trade < ApplicationRecord
     end
   end
 
+  def sell_order
+    if maker_order.side == 'sell'
+      maker_order
+    elsif taker_order.side == 'sell'
+      taker_order
+    end
+  end
+
+  def buy_order
+    if maker_order.side == 'buy'
+      maker_order
+    elsif taker_order.side == 'buy'
+      taker_order
+    end
+  end
+
   def for_notify(member = nil)
     { id:             id,
       side:           side(member),
@@ -94,50 +109,47 @@ class Trade < ApplicationRecord
   private
 
   def record_liability_debit!
-    sell, buy = maker_order.side == 'sell' ? [maker_order, taker_order] : [taker_order, maker_order]
-    seller_currency_outcome = amount
-    buyer_currency_outcome = total
+    seller_outcome = amount
+    buyer_outcome = total
 
     # Debit locked fiat/crypto Liability account for member who created ask.
     Operations::Liability.debit!(
-      amount:    seller_currency_outcome,
-      currency:  sell.currency,
+      amount:    seller_outcome,
+      currency:  sell_order.outcome_currency,
       reference: self,
       kind:      :locked,
-      member_id: sell.member_id,
+      member_id: sell_order.member_id,
     )
     # Debit locked fiat/crypto Liability account for member who created bid.
     Operations::Liability.debit!(
-      amount:    buyer_currency_outcome,
-      currency:  buy.currency,
+      amount:    buyer_outcome,
+      currency:  buy_order.outcome_currency,
       reference: self,
       kind:      :locked,
-      member_id: buy.member_id,
+      member_id: buy_order.member_id,
     )
   end
 
   def record_liability_credit!
-    sell, buy = maker_order.side == 'sell' ? [maker_order, taker_order] : [taker_order, maker_order]
-    seller_currency_income = amount - amount * order_fee(buy)
-    buyer_currency_income = total - total * order_fee(sell)
-
+    seller_income = total - total * order_fee(sell_order)
+    buyer_income = amount - amount * order_fee(buy_order)
 
     # Credit main fiat/crypto Liability account for member who created ask.
     Operations::Liability.credit!(
-      amount:    buyer_currency_income,
-      currency:  buy.currency,
+      amount:    buyer_income,
+      currency:  buy_order.income_currency,
       reference: self,
       kind:      :main,
-      member_id: sell.member_id
+      member_id: buy_order.member_id
     )
 
     # Credit main fiat/crypto Liability account for member who created bid.
     Operations::Liability.credit!(
-      amount:    seller_currency_income,
-      currency:  sell.currency,
+      amount:    seller_income,
+      currency:  sell_order.income_currency,
       reference: self,
       kind:      :main,
-      member_id: buy.member_id
+      member_id: sell_order.member_id
     )
   end
 
@@ -158,24 +170,23 @@ class Trade < ApplicationRecord
   end
 
   def record_revenues!
-    sell, buy = maker_order.side == 'sell' ? [maker_order, taker_order] : [taker_order, maker_order]
-    seller_currency_fee = amount * order_fee(buy)
-    buyer_currency_fee = total * order_fee(sell)
+    seller_fee = total * order_fee(sell_order)
+    buyer_fee = amount * order_fee(buy_order)
 
     # Credit main fiat/crypto Revenue account.
     Operations::Revenue.credit!(
-      amount:    seller_currency_fee,
-      currency:  sell.currency,
+      amount:    seller_fee,
+      currency:  sell_order.income_currency,
       reference: self,
-      member_id: buy.member_id
+      member_id: sell_order.member_id
     )
 
     # Credit main fiat/crypto Revenue account.
     Operations::Revenue.credit!(
-      amount:    buyer_currency_fee,
-      currency:  buy.currency,
+      amount:    buyer_fee,
+      currency:  buy_order.income_currency,
       reference: self,
-      member_id: sell.member_id
+      member_id: buy_order.member_id
     )
   end
 end
