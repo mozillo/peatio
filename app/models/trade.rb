@@ -159,7 +159,7 @@ class Trade < ApplicationRecord
       if order.volume.zero? && !order.locked.zero?
         Operations::Liability.transfer!(
           amount:    order.locked,
-          currency:  order.currency,
+          currency:  order.outcome_currency,
           reference: self,
           from_kind: :locked,
           to_kind:   :main,
