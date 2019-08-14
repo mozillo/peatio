@@ -1,6 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
+# TODO: Think about renaming model.
 class FeeSchedule < ApplicationRecord
   # == Constants ============================================================
 
@@ -16,7 +17,8 @@ class FeeSchedule < ApplicationRecord
 
   # == Relationships ========================================================
 
-  belongs_to :market, required: false
+  # TODO: Do we need to destroy FeeSchedule on Market delete ???
+  belongs_to :market, optional: true
 
   # == Validations ==========================================================
 
@@ -28,7 +30,12 @@ class FeeSchedule < ApplicationRecord
             numericality: { greater_than_or_equal_to: MIN_FEE,
                             less_than_or_equal_to: MAX_FEE }
 
-  #TODO: Precision validations
+  validates :market_id,
+            inclusion: { in: ->(_fs){ Market.ids }},
+            if: ->(fs){ fs.market_id.present? }
+
+  # TODO: Add precision validations for maker & taker.
+  # NOTE: May be it's time to write Precision validation class ?
 
   # == Scopes ===============================================================
 
