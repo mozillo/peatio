@@ -47,6 +47,12 @@ class Market < ApplicationRecord
   alias_attribute :base_currency, :base_unit
   alias_attribute :quote_currency, :quote_unit
 
+  # == Extensions ===========================================================
+
+  # == Relationships ========================================================
+
+  has_many :fee_schedules, dependent: :delete_all
+
   # == Validations ==========================================================
 
   validate do

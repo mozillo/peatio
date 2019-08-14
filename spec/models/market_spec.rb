@@ -196,4 +196,17 @@ describe Market do
       field.to_s.humanize.downcase
     end
   end
+
+  context 'relationships' do
+    subject { Market.find(:btcusd) }
+    before do
+      create(:fee_schedule, market_id: :btcusd)
+      create(:fee_schedule, market_id: :btceth)
+      create(:fee_schedule)
+    end
+
+    it 'deletes only btcusd fee_schedule' do
+      expect { subject.destroy! }.to change(FeeSchedule, :count).by(-1)
+    end
+  end
 end
