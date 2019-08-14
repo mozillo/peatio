@@ -62,19 +62,11 @@ class Trade < ApplicationRecord
   end
 
   def sell_order
-    if maker_order.side == 'sell'
-      maker_order
-    elsif taker_order.side == 'sell'
-      taker_order
-    end
+    [maker_order, taker_order].find { |o| o.side == 'sell' }
   end
 
   def buy_order
-    if maker_order.side == 'buy'
-      maker_order
-    elsif taker_order.side == 'buy'
-      taker_order
-    end
+    [maker_order, taker_order].find { |o| o.side == 'buy' }
   end
 
   def for_notify(member = nil)

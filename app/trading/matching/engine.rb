@@ -131,7 +131,7 @@ module Matching
       amount = trade[1]
       total  = trade[2]
 
-      Rails.logger.info { "[#{@market.id}] new trade - ask: #{ask.label} bid: #{bid.label} price: #{price} amount: #{amount} total: #{total}" }
+      Rails.logger.info { "[#{@market.id}] new trade - maker_order: #{maker_order.label} taker_order: #{taker_order.label} price: #{price} amount: #{amount} total: #{total}" }
 
       @queue.enqueue(:trade_executor,
                      { market_id: @market.id,

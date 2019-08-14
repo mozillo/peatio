@@ -126,22 +126,6 @@ class Order < ApplicationRecord
     origin_locked - locked
   end
 
-  def outcome_currency
-    if side == 'sell'
-      ask_currency
-    elsif side == 'buy'
-      bid_currency
-    end
-  end
-
-  def income_currency
-    if side == 'sell'
-      bid_currency
-    elsif side == 'buy'
-      ask_currency
-    end
-  end
-
   def trigger_pusher_event
     # skip market type orders, they should not appear on trading-ui
     return unless ord_type == 'limit' || state == 'done'

@@ -32,6 +32,14 @@ class OrderAsk < Order
     Currency.find(ask)
   end
 
+  def income_currency
+    bid_currency
+  end
+
+  def outcome_currency
+    ask_currency
+  end
+
   def compute_locked
     case ord_type
     when 'limit'

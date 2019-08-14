@@ -32,6 +32,14 @@ class OrderBid < Order
     Currency.find(bid)
   end
 
+  def income_currency
+    ask_currency
+  end
+
+  def outcome_currency
+    bid_currency
+  end
+
   LOCKING_BUFFER_FACTOR = '1.1'.to_d
   def compute_locked
     case ord_type
