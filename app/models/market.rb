@@ -25,6 +25,7 @@ class Market < ApplicationRecord
   # For fee we define static precision - 4.
   # So 12 left for amount and price precision.
   DB_DECIMAL_PRECISION = 16
+  # TODO: Do we still need it since it's defined in FeeShedule ???
   FEE_PRECISION = 4
   FUNDS_PRECISION = 12
 
