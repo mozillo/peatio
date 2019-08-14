@@ -91,3 +91,29 @@ describe FeeSchedule, 'Validations' do
     # TODO: Write me.
   end
 end
+
+describe FeeSchedule, 'Class Methods' do
+  context '#for' do
+    let!(:member) { create(:member) }
+
+    before do
+      member.instance_eval do
+        def group
+          :vip1
+        end
+      end
+
+      create(:fee_schedule, market_id: :btcusd, group: :vip1)
+      create(:fee_schedule, group: :vip1)
+      create(:fee_schedule, market_id: :btcusd)
+      create(:fee_schedule, market_id: nil, group: nil)
+    end
+
+    let(:order) { Order.new(member: member, market_id: :btcusd) }
+    it 'iii' do
+      binding.pry
+      FeeSchedule.for(order).pry
+      expect(FeeSchedule.for(order)).to be_truthy
+    end
+  end
+end

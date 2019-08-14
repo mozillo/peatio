@@ -1,7 +1,8 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-# TODO: Think about renaming model.
+# TODO: Think about renaming model the most explicit name is TradingFeeSchedule.
+# TODO: Seed FeeSchedules in the same way as we do with currencies, markets etc.
 class FeeSchedule < ApplicationRecord
   # == Constants ============================================================
 
@@ -17,7 +18,6 @@ class FeeSchedule < ApplicationRecord
 
   # == Relationships ========================================================
 
-  # TODO: Do we need to destroy FeeSchedule on Market delete ???
   belongs_to :market, optional: true
 
   # == Validations ==========================================================
@@ -43,7 +43,19 @@ class FeeSchedule < ApplicationRecord
 
   # == Class Methods ========================================================
 
+  class << self
+    def for(order)
+      FeeSchedule
+        .where(market_id: [order.market_id, nil], group: [order.member.group, nil])
+        .max_by { |fs| fs.weight } || FeeSchedule.new
+    end
+  end
+
   # == Instance Methods =====================================================
+
+  def weight
+    (group.present? ? 10 : 0) + (market_id.present? ? 1 : 0)
+  end
 end
 
 # == Schema Information
